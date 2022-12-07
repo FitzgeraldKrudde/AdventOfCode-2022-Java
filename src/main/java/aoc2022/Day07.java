@@ -13,8 +13,7 @@ public class Day07 extends Day {
     public String doPart1(List<String> inputRaw) {
         Filesystem filesystem = Filesystem.of(inputRaw);
 
-        HashMap<Node, Long> directorySizes = new HashMap<>();
-        filesystem.calculateSizes(directorySizes);
+        HashMap<Node, Long> directorySizes = filesystem.calculateSizes();
 
         long result = directorySizes.values().stream()
                 .filter(size -> size <= 100000)
@@ -71,8 +70,11 @@ public class Day07 extends Day {
             return filesystem;
         }
 
-        public void calculateSizes(HashMap<Node, Long> sizes) {
-            root.calculateSize(sizes);
+        public HashMap<Node, Long> calculateSizes() {
+            HashMap<Node, Long> directorySizes = new HashMap<>();
+            root.calculateSize(directorySizes);
+
+            return directorySizes;
         }
     }
 
@@ -123,8 +125,7 @@ public class Day07 extends Day {
     public String doPart2(List<String> inputRaw) {
         Filesystem filesystem = Filesystem.of(inputRaw);
 
-        HashMap<Node, Long> directorySizes = new HashMap<>();
-        filesystem.calculateSizes(directorySizes);
+        HashMap<Node, Long> directorySizes = filesystem.calculateSizes();
 
         long FILESYTEM_SIZE = 70_000_000;
         long TOTAL_UNUSED_SPACE_NEEDED = 30_000_000;
