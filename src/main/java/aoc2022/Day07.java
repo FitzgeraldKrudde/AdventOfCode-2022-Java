@@ -22,17 +22,17 @@ public class Day07 extends Day {
         return String.valueOf(result);
     }
 
-    record Node(String name, Node parent, Set<Node> subDirectories, long size) {
+    record Node(String name, Node parent, Set<Node> nodes, long size) {
         void addDirectory(String directory) {
-            subDirectories.add(new Node(directory, this, new HashSet<>(), 0));
+            nodes.add(new Node(directory, this, new HashSet<>(), 0));
         }
 
         void addFile(String filename, long size) {
-            subDirectories.add(new Node(filename, this, new HashSet<>(), size));
+            nodes.add(new Node(filename, this, new HashSet<>(), size));
         }
 
         long calculateSize(HashMap<Node, Long> sizes) {
-            long totalSize = size + subDirectories().stream()
+            long totalSize = size + nodes().stream()
                     .map(node -> node.calculateSize(sizes))
                     .reduce(0L, Long::sum);
             if (size == 0) {
@@ -46,12 +46,12 @@ public class Day07 extends Day {
 
         @Override
         public String toString() {
-            return "Node{name='" + name + '\'' + ", subDirectories=" + subDirectories + ", size=" + size + '}';
+            return "Node{name='" + name + '\'' + ", nodes=" + nodes + ", size=" + size + '}';
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(name, subDirectories, size);
+            return Objects.hash(name, nodes, size);
         }
     }
 
@@ -103,7 +103,7 @@ public class Day07 extends Day {
             return switch (dir) {
                 case ROOT -> cdRoot();
                 case ".." -> new Prompt(filesystem, currentDir.parent());
-                default -> new Prompt(filesystem, currentDir.subDirectories.stream()
+                default -> new Prompt(filesystem, currentDir.nodes.stream()
                         .filter(node -> node.name().equals(dir))
                         .findFirst()
                         .orElseThrow(() -> new RuntimeException("unknown dir")));
