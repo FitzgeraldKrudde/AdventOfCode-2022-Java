@@ -21,95 +21,6 @@ public class Day08 extends Day {
     record Tree(int x, int y, int height) {
     }
 
-    enum Direction {
-        L, R, U, D
-    }
-
-    record Forest(List<Tree> trees, int gridLength) {
-        static Forest of(List<String> input) {
-            List<Tree> trees = new ArrayList<>();
-            int gridLength = input.get(0).length();
-            IntStream.range(0, gridLength)
-                    .boxed()
-                    .forEach(x -> IntStream.range(0, gridLength)
-                            .forEach(y -> trees.add(new Tree(x, y, input.get(y).charAt(x) - 48))));
-
-            return new Forest(trees, gridLength);
-        }
-
-        long getNrVisibleTrees() {
-            return trees.parallelStream()
-                    .filter(this::isVisible)
-                    .count();
-        }
-
-        boolean isVisible(Tree tree) {
-            boolean isVisibleFromTheLeft = trees.stream()
-                    .filter(t -> t.y() == tree.y())
-                    .filter(t -> t.x() < tree.x())
-                    .noneMatch(t -> t.height >= tree.height());
-            boolean isVisibleFromTheRight = trees.stream()
-                    .filter(t -> t.y() == tree.y())
-                    .filter(t -> t.x() > tree.x())
-                    .noneMatch(t -> t.height >= tree.height());
-            boolean isVisibleFromTheTop = trees.stream()
-                    .filter(t -> t.x() == tree.x())
-                    .filter(t -> t.y() < tree.y())
-                    .noneMatch(t -> t.height >= tree.height());
-            boolean isVisibleFromTheBottom = trees.stream()
-                    .filter(t -> t.x() == tree.x())
-                    .filter(t -> t.y() > tree.y())
-                    .noneMatch(t -> t.height >= tree.height());
-
-            return isVisibleFromTheTop || isVisibleFromTheLeft || isVisibleFromTheRight || isVisibleFromTheBottom;
-        }
-
-        Optional<Tree> getNeighbourTree(Tree tree, Direction direction) {
-            return trees.stream()
-                    .filter(t -> t.x == switch (direction) {
-                                case U, D -> tree.x();
-                                case L -> tree.x() - 1;
-                                case R -> tree.x() + 1;
-                            } && t.y() ==
-                                    switch (direction) {
-                                        case U -> tree.y() - 1;
-                                        case D -> tree.y() + 1;
-                                        case L, R -> tree.y();
-                                    }
-                    )
-                    .findFirst();
-        }
-
-        long getHighestScenicScore() {
-            return trees.parallelStream()
-                    .map(this::getScenicScore)
-                    .max(comparingLong(l -> l))
-                    .orElseThrow(() -> new RuntimeException("no solution"));
-        }
-
-        long getScenicScore(Tree tree) {
-            return Arrays.stream(Direction.values())
-                    .map(direction -> getNrVisibleTrees(tree, direction))
-                    .reduce(1L, (l1, l2) -> l1 * l2);
-        }
-
-        private long getNrVisibleTrees(Tree tree, Direction direction) {
-            long visibleTrees = 0;
-
-            Optional<Tree> neighbour = getNeighbourTree(tree, direction);
-            while (neighbour.isPresent()) {
-                visibleTrees++;
-                if (neighbour.get().height < tree.height()) {
-                    neighbour = getNeighbourTree(neighbour.get(), direction);
-                } else {
-                    neighbour = Optional.empty();
-                }
-            }
-
-            return visibleTrees;
-        }
-    }
-
     @Override
     public String doPart2(List<String> inputRaw) {
         Forest forest = Forest.of(inputRaw);
@@ -138,4 +49,102 @@ public class Day08 extends Day {
         day.main(filename);
     }
     // @formatter:on
+}
+
+enum Direction {
+    L, R, U, D;
+
+    Direction reverse() {
+        return switch (this) {
+            case L -> R;
+            case R -> L;
+            case U -> D;
+            case D -> U;
+        };
+    }
+}
+
+record Forest(List<Day08.Tree> trees, int gridLength) {
+    static Forest of(List<String> input) {
+        List<Day08.Tree> trees = new ArrayList<>();
+        int gridLength = input.get(0).length();
+        IntStream.range(0, gridLength)
+                .boxed()
+                .forEach(x -> IntStream.range(0, gridLength)
+                        .forEach(y -> trees.add(new Day08.Tree(x, y, input.get(y).charAt(x) - 48))));
+
+        return new Forest(trees, gridLength);
+    }
+
+    long getNrVisibleTrees() {
+        return trees.parallelStream()
+                .filter(this::isVisible)
+                .count();
+    }
+
+    boolean isVisible(Day08.Tree tree) {
+        boolean isVisibleFromTheLeft = trees.stream()
+                .filter(t -> t.y() == tree.y())
+                .filter(t -> t.x() < tree.x())
+                .noneMatch(t -> t.height() >= tree.height());
+        boolean isVisibleFromTheRight = trees.stream()
+                .filter(t -> t.y() == tree.y())
+                .filter(t -> t.x() > tree.x())
+                .noneMatch(t -> t.height() >= tree.height());
+        boolean isVisibleFromTheTop = trees.stream()
+                .filter(t -> t.x() == tree.x())
+                .filter(t -> t.y() < tree.y())
+                .noneMatch(t -> t.height() >= tree.height());
+        boolean isVisibleFromTheBottom = trees.stream()
+                .filter(t -> t.x() == tree.x())
+                .filter(t -> t.y() > tree.y())
+                .noneMatch(t -> t.height() >= tree.height());
+
+        return isVisibleFromTheTop || isVisibleFromTheLeft || isVisibleFromTheRight || isVisibleFromTheBottom;
+    }
+
+    Optional<Day08.Tree> getNeighbourTree(Day08.Tree tree, Direction direction) {
+        return trees.stream()
+                .filter(t -> t.x() == switch (direction) {
+                            case U, D -> tree.x();
+                            case L -> tree.x() - 1;
+                            case R -> tree.x() + 1;
+                        } && t.y() ==
+                                switch (direction) {
+                                    case U -> tree.y() - 1;
+                                    case D -> tree.y() + 1;
+                                    case L, R -> tree.y();
+                                }
+                )
+                .findFirst();
+    }
+
+    long getHighestScenicScore() {
+        return trees.parallelStream()
+                .map(this::getScenicScore)
+                .max(comparingLong(l -> l))
+                .orElseThrow(() -> new RuntimeException("no solution"));
+    }
+
+    long getScenicScore(Day08.Tree tree) {
+        return Arrays.stream(Direction.values())
+                .map(direction -> getNrVisibleTrees(tree, direction))
+                .reduce(1L, (l1, l2) -> l1 * l2);
+    }
+
+    private long getNrVisibleTrees(Day08.Tree tree, Direction direction) {
+        long visibleTrees = 0;
+
+        Optional<Day08.Tree> neighbour = getNeighbourTree(tree, direction);
+        while (neighbour.isPresent()) {
+            visibleTrees++;
+            if (neighbour.get().height() < tree.height()) {
+                neighbour = getNeighbourTree(neighbour.get(), direction);
+            } else {
+                neighbour = Optional.empty();
+            }
+        }
+
+        return visibleTrees;
+    }
 }

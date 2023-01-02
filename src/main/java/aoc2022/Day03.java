@@ -54,39 +54,6 @@ public class Day03 extends Day {
         return ai.getAndIncrement() / 3;
     }
 
-    record Group(List<Rucksack> listRucksack) {
-        char findBadge() {
-            return listRucksack.stream()
-                    .flatMap(Rucksack::getAllItems)
-                    .collect(groupingBy(identity(),
-                            counting()))
-                    .entrySet()
-                    .stream()
-                    .filter(kv -> kv.getValue() == 3)
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("no solution"))
-                    .getKey();
-        }
-    }
-
-    record Rucksack(String compartment1, String compartment2) {
-        Stream<Character> getAllItems() {
-            return Stream.concat(compartment1.chars().distinct().mapToObj(c -> (char) c), compartment2.chars().distinct().mapToObj(c -> (char) c));
-        }
-
-        char commonItem() {
-            return getAllItems()
-                    .collect(groupingBy(identity(),
-                            counting()))
-                    .entrySet()
-                    .stream()
-                    .filter(kv -> kv.getValue() == 2)
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("no solution"))
-                    .getKey();
-        }
-    }
-
     // @formatter:off
     static public void main(String[] args) throws Exception {
         // get our class
@@ -106,4 +73,37 @@ public class Day03 extends Day {
         day.main(filename);
     }
     // @formatter:on
+}
+
+record Group(List<Rucksack> listRucksack) {
+    char findBadge() {
+        return listRucksack.stream()
+                .flatMap(Rucksack::getAllItems)
+                .collect(groupingBy(identity(),
+                        counting()))
+                .entrySet()
+                .stream()
+                .filter(kv -> kv.getValue() == 3)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("no solution"))
+                .getKey();
+    }
+}
+
+record Rucksack(String compartment1, String compartment2) {
+    Stream<Character> getAllItems() {
+        return Stream.concat(compartment1.chars().distinct().mapToObj(c -> (char) c), compartment2.chars().distinct().mapToObj(c -> (char) c));
+    }
+
+    char commonItem() {
+        return getAllItems()
+                .collect(groupingBy(identity(),
+                        counting()))
+                .entrySet()
+                .stream()
+                .filter(kv -> kv.getValue() == 2)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("no solution"))
+                .getKey();
+    }
 }

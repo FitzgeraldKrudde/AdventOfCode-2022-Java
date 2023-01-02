@@ -19,15 +19,6 @@ public class Day06 extends Day {
         return String.valueOf(result);
     }
 
-    record Pair(int position, String potentialMarker) {
-        boolean isStartOfMarker(int markerLength) {
-            return potentialMarker.chars()
-                    .boxed()
-                    .collect(Collectors.toSet())
-                    .size() == markerLength;
-        }
-    }
-
     @Override
     public String doPart2(List<String> inputRaw) {
         String input = inputRaw.get(0);
@@ -61,4 +52,13 @@ public class Day06 extends Day {
         day.main(filename);
     }
     // @formatter:on
+}
+
+record Pair(int position, String potentialMarker) {
+    boolean isStartOfMarker(int markerLength) {
+        return potentialMarker.chars()
+                .boxed()
+                .collect(Collectors.toSet())
+                .size() == markerLength;
+    }
 }

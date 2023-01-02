@@ -13,41 +13,6 @@ public class Day04 extends Day {
         return String.valueOf(result);
     }
 
-    record Assignment(int from, int to) {
-        static Assignment of(String s) {
-            String[] indices = s.split("-");
-            return new Assignment(Integer.parseInt(indices[0]), Integer.parseInt(indices[1]));
-        }
-    }
-
-    record AssignmentPair(Assignment assignment1, Assignment assignment2) {
-        static AssignmentPair of(String line) {
-            String[] assignments = line.split(",");
-            return new AssignmentPair(Assignment.of(assignments[0]), Assignment.of(assignments[1]));
-        }
-
-        boolean fullyContained() {
-            if (assignment1.from() >= assignment2.from() && assignment1.to() <= assignment2.to()) {
-                return true;
-            }
-            return assignment2.from() >= assignment1.from() && assignment2.to() <= assignment1.to();
-        }
-        boolean partlyContained() {
-            if (assignment1.from() >= assignment2.from() && assignment1.from() <= assignment2.to()) {
-                return true;
-            }
-            if (assignment1.to() >= assignment2.from() && assignment1.to() <= assignment2.to()) {
-                return true;
-            }
-
-            if (assignment2.from() >= assignment1.from() && assignment2.from() <= assignment1.to()) {
-                return true;
-            }
-            return assignment2.to() >= assignment1.from() && assignment2.to() <= assignment1.to();
-        }
-
-    }
-
     @Override
     public String doPart2(List<String> inputRaw) {
         long result = inputRaw.stream()
@@ -77,4 +42,39 @@ public class Day04 extends Day {
         day.main(filename);
     }
     // @formatter:on
+}
+
+record Assignment(int from, int to) {
+    static Assignment of(String s) {
+        String[] indices = s.split("-");
+        return new Assignment(Integer.parseInt(indices[0]), Integer.parseInt(indices[1]));
+    }
+}
+
+record AssignmentPair(Assignment assignment1, Assignment assignment2) {
+    static AssignmentPair of(String line) {
+        String[] assignments = line.split(",");
+        return new AssignmentPair(Assignment.of(assignments[0]), Assignment.of(assignments[1]));
+    }
+
+    boolean fullyContained() {
+        if (assignment1.from() >= assignment2.from() && assignment1.to() <= assignment2.to()) {
+            return true;
+        }
+        return assignment2.from() >= assignment1.from() && assignment2.to() <= assignment1.to();
+    }
+    boolean partlyContained() {
+        if (assignment1.from() >= assignment2.from() && assignment1.from() <= assignment2.to()) {
+            return true;
+        }
+        if (assignment1.to() >= assignment2.from() && assignment1.to() <= assignment2.to()) {
+            return true;
+        }
+
+        if (assignment2.from() >= assignment1.from() && assignment2.from() <= assignment1.to()) {
+            return true;
+        }
+        return assignment2.to() >= assignment1.from() && assignment2.to() <= assignment1.to();
+    }
+
 }
